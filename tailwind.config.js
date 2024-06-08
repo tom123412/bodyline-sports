@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./Components/**/*.{razor}"],
+  content: ["./Components/**/*.razor"],
   theme: {
     colors: {
       facebook: '#0866FF'
