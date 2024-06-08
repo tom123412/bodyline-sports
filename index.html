@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        header {
+            display: grid;
+            grid-template:
+                "about contact";
+            column-gap: 1rem;
+            align-items: center;
+        }
+
+        .about {
+            grid-area: about;
+        }
+
+        .contact {
+            grid-area: contact;
+        }
+
+        main {
+            display: grid;
+            grid-template: 
+                ". main .";
+            height: 0.9vh;
+        }
+
+        main > div {
+            grid-area: main;
+        }
+
+        ._2lqh {
+            display: none;
+        }
+
+        ._2p3a {
+            width: 100% !important;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v19.0&appId=8199947876699100" nonce="TM9dXGkx"></script>    
+    <header>
+        <div class="about p-4">
+            <h1 class="text-2xl">Bodyline Sports</h1>
+            <p>Racquet specialist carrying a large range of brands and associated products, Mizuno footwear is the preferred brand, we are also stringing specialist of all racquet sports</p>
+        </div>
+        <div class="contact">
+            <p>
+                <span class="material-symbols-sharp">mail</span>
+                <a href="mailto:richard@bodylinesports.com.au">richard@bodylinesports.com.au</a>
+            </p>
+            <p>
+                <span class="material-symbols-sharp">call</span>
+                <a href="tel:0262306353">(02) 6230 6353</a>
+            </p>
+            <p>
+                <span class="material-symbols-sharp">home</span>
+                <span>Dickson Place, Dickson, Canberra, ACT, 2602</span>
+            </p>
+            <p>
+
+                <a href="https://www.facebook.com/groups/2430494963811548">Bodyline sports</a>
+            </p>
+        </div>
+    </header>
+    <main class="mt-4">
+        <div 
+            class="fb-page" 
+            data-href="https://www.facebook.com/racquetproshop" 
+            data-tabs="timeline" 
+            data-width="500" 
+            data-height="500" 
+            data-small-header="false" 
+            data-adapt-container-width="true" 
+            data-hide-cover="false" 
+            data-show-facepile="false">
+                <blockquote cite="https://www.facebook.com/racquetproshop" class="fb-xfbml-parse-ignore">
+                    <a href="https://www.facebook.com/racquetproshop">Bodyline Sports</a>
+                </blockquote>
+        </div>        
+    </main>
+    <footer></footer>
+</body>
+</html>
