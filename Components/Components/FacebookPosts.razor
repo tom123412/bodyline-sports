@@ -7,7 +7,10 @@
 
 @foreach (var post in Posts)
 {
-    <p class="p-2">@post.Message</p>
+    <div class="p-2">
+        <p>@post.Message</p>
+        <img src="@(post.PictureUrl)" @/>
+    </div>
 }
 
 @code {
