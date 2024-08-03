@@ -1,0 +1,24 @@
+@using Microsoft.Extensions.Options
+@using bodyline_sports.Models
+@using bodyline_sports.Options
+@using bodyline_sports.Services
+@inject IFacebook facebookService
+@inject IOptions<FacebookOptions> options
+
+@foreach (var post in Posts)
+{
+    <p class="p-2">@post.Message</p>
+}
+
+@code {
+    private Post[] Posts { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var group = await facebookService.GetGroup(options.Value.GroupId);
+        if (group is not null)
+        {
+            Posts = await facebookService.GetGroupPosts(group);
+        }
+    }
+}
