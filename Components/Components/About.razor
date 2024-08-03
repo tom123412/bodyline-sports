@@ -1,6 +1,9 @@
+@using Microsoft.Extensions.Options
 @using bodyline_sports.Models
+@using bodyline_sports.Options
 @using bodyline_sports.Services
 @inject IFacebook facebookService
+@inject IOptions<FacebookOptions> options
 
 <div class="p-2 text-center">
     <h1 class="text-2xl font-bold">Bodyline Sports</h1>
@@ -12,7 +15,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Group = await facebookService.GetGroup("2430494963811548");
+        Group = await facebookService.GetGroup(options.Value.GroupId);
     }
 }    
-

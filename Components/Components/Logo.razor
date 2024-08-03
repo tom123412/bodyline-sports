@@ -1,6 +1,9 @@
+@using Microsoft.Extensions.Options
 @using bodyline_sports.Models
+@using bodyline_sports.Options
 @using bodyline_sports.Services
 @inject IFacebook facebookService
+@inject IOptions<FacebookOptions> options
 
 <div class="">
     <img class="h-full" alt="logo" referrerpolicy="origin-when-cross-origin" src="@(Group?.Cover.Source)">
@@ -11,6 +14,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Group = await facebookService.GetGroup("2430494963811548");
+        Group = await facebookService.GetGroup(options.Value.GroupId);
     }
-}   
+}      
