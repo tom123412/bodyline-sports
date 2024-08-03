@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,9 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>bodyline-sports</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
+    <UserSecretsId>c817f03c-6a85-4ace-86e4-ad5fb15384f7</UserSecretsId>
   </PropertyGroup>
 
    <Target Name="MyPreCompileTarget" BeforeTargets="Build">
-        <Exec Command="npx tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/app.css --minify"/>
+        <Exec Command="npx tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/app.css --minify" />
     </Target>
 </Project>

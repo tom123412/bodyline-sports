@@ -1,3 +1,4 @@
 bin/
 obj/
 wwwroot/css/app.css
+secrets.json
