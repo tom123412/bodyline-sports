@@ -7,9 +7,9 @@
 
 @foreach (var post in Posts)
 {
-    <div class="p-2">
-        <p>@post.Message</p>
-        <img src="@(post.PictureUrl)" @/>
+    <div class="p-2 m-2 bg-white rounded-xl shadow-md w-fit mx-auto">
+        <p>@((MarkupString?)(post.Message?.Replace("\n", "<br />") ?? string.Empty))</p>
+        <img alt="post image" src="@(post.PictureUrl)" class="mx-auto pt-2" />
     </div>
 }
 
