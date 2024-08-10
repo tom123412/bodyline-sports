@@ -53,7 +53,7 @@ public class Facebook : IFacebook
 
     async Task<Post[]> IFacebook.GetGroupPosts(Group group)
     {
-        var feed = await _httpClient.GetFromJsonAsync<GroupFeed>($"/{group.Id}/feed?access_token={_options.AccessToken}");
+        var feed = await _httpClient.GetFromJsonAsync<GroupFeed>($"/{group.Id}/feed?limit=10&access_token={_options.AccessToken}");
         var posts = feed?.Data ?? [];
 
         foreach (var post in posts)
