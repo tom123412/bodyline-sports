@@ -56,7 +56,14 @@ public class Facebook : IFacebook
 
     async Task<Group?> IFacebook.GetGroup(string groupId)
     {
-        var group = await _httpClient.GetFromJsonAsync<Group>($"/{groupId}?fields=description,cover&access_token={_options.AccessToken}");
+        var cacheKey = $"Group-{groupId}";
+        var group = _cache.Get<Group>(cacheKey) ?? await _httpClient.GetFromJsonAsync<Group>($"/{groupId}?fields=description,cover&access_token={_options.AccessToken}");
+        
+        if (group is not null)
+        {
+            _cache.Set(cacheKey, group);
+        }
+        
         return group;
     }
 

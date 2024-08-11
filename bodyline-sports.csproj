@@ -9,6 +9,10 @@
     <UserSecretsId>c817f03c-6a85-4ace-86e4-ad5fb15384f7</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
+  </ItemGroup>
+
    <Target Name="MyPreCompileTarget" BeforeTargets="Build">
         <Exec Command="npx tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/app.css --minify" />
     </Target>

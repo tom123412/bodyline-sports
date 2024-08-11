@@ -1,3 +1,4 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using bodyline_sports.Components;
 using bodyline_sports.Options;
 using bodyline_sports.Services;
@@ -6,6 +7,7 @@ using Microsoft.Net.Http.Headers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddOpenTelemetry().UseAzureMonitor();
 builder.Services.AddMemoryCache();
 
 builder.Services.Configure<FacebookOptions>(
