@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using bodyline_sports.Models;
 using bodyline_sports.Options;
@@ -56,10 +57,12 @@ public class Facebook : IFacebook
         var feed = await _httpClient.GetFromJsonAsync<GroupFeed>($"/{group.Id}/feed?limit=10&access_token={_options.AccessToken}");
         var posts = feed?.Data ?? [];
 
+        var tasks = new List<Task>();
         foreach (var post in posts)
         {
-            await SetPictureInPost(post);
+            tasks.Add(SetPictureInPost(post));
         }
+        await Task.WhenAll(tasks);
 
         return posts;
     }

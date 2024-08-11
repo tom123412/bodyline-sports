@@ -7,7 +7,7 @@
 
 @foreach (var post in Posts)
 {
-    <article class="p-2 bg-white rounded-xl shadow-md basis-1/4 shadow-black h-min">
+    <article class="p-2 bg-white rounded-xl shadow-md basis-4/5 shadow-black h-min">
         <p class="text-xs">@post.UpdatedDateTime.LocalDateTime.ToString(@"dd MMMM \a\t HH:mm")</p>
         <p class="pt-1">@((MarkupString?)(post.Message?.Replace("\n", "<br />") ?? string.Empty))</p>
         <img alt="post image" src="@(post.PictureUrl)" class="mx-auto pt-2" />
