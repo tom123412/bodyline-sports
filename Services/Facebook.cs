@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json.Serialization;
 using bodyline_sports.Models;
 using bodyline_sports.Options;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace bodyline_sports.Services;
@@ -37,13 +38,20 @@ public class Facebook : IFacebook
         public required Uri Url { get; set; }
     }
 
+    private readonly IMemoryCache _cache;
+    private readonly MemoryCacheEntryOptions options = new()
+    {
+        AbsoluteExpirationRelativeToNow =
+            TimeSpan.FromHours(1)
+    };
     private readonly HttpClient _httpClient;
     private readonly FacebookOptions _options;
 
-    public Facebook(IHttpClientFactory httpClientFactory, IOptions<FacebookOptions> options)
+    public Facebook(IHttpClientFactory httpClientFactory, IOptions<FacebookOptions> options, IMemoryCache cache)
     {
         _httpClient = httpClientFactory.CreateClient("Facebook");
         _options = options.Value;
+        _cache = cache;
     }
 
     async Task<Group?> IFacebook.GetGroup(string groupId)
@@ -54,17 +62,24 @@ public class Facebook : IFacebook
 
     async Task<Post[]> IFacebook.GetGroupPosts(Group group)
     {
-        var feed = await _httpClient.GetFromJsonAsync<GroupFeed>($"/{group.Id}/feed?limit=10&access_token={_options.AccessToken}");
-        var posts = feed?.Data ?? [];
+        var cacheKey = $"Posts-{group.Id}";
+        var posts = _cache.Get<Post[]>(cacheKey)?.ToList() ?? [];
+        var url = $"/{group.Id}/feed?since={posts.FirstOrDefault()?.UpdatedDateTime.ToString("s")}&limit=10&access_token={_options.AccessToken}";
+        var feed = await _httpClient.GetFromJsonAsync<GroupFeed>(url);
+        var newPosts = (feed?.Data ?? []).ToList();
 
         var tasks = new List<Task>();
-        foreach (var post in posts)
+        foreach (var post in newPosts)
         {
             tasks.Add(SetPictureInPost(post));
         }
         await Task.WhenAll(tasks);
 
-        return posts;
+        newPosts.AddRange(posts);
+
+        _cache.Set(cacheKey, newPosts.ToArray());
+
+        return _cache.Get<Post[]>(cacheKey)!;
     }
 
     private async Task SetPictureInPost(Post post)
