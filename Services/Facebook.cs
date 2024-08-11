@@ -39,7 +39,7 @@ public class Facebook : IFacebook
     }
 
     private readonly IMemoryCache _cache;
-    private readonly MemoryCacheEntryOptions options = new()
+    private readonly MemoryCacheEntryOptions _cacheOptions = new()
     {
         AbsoluteExpirationRelativeToNow =
             TimeSpan.FromHours(1)
@@ -61,9 +61,9 @@ public class Facebook : IFacebook
         
         if (group is not null)
         {
-            _cache.Set(cacheKey, group);
+            _cache.Set(cacheKey, group, _cacheOptions);
         }
-        
+
         return group;
     }
 
@@ -84,7 +84,7 @@ public class Facebook : IFacebook
 
         newPosts.AddRange(posts);
 
-        _cache.Set(cacheKey, newPosts.ToArray());
+        _cache.Set(cacheKey, newPosts.ToArray(), _cacheOptions);
 
         return _cache.Get<Post[]>(cacheKey)!;
     }
