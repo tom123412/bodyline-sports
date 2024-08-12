@@ -3,12 +3,12 @@
 @inherits LayoutComponentBase
 
 <div class="grid h-screen grid-rows-[auto_1fr_auto] p-2">
-    <header class="grid gap-x-4 border-b-2 border-black grid-cols-[1fr_3fr_auto] shadow-lg p-1">
+    <header class="grid gap-x-4 border-b-2 border-black grid-rows-[1fr] lg:grid-cols-[1fr_3fr_auto] shadow-lg p-1">
         <About />
         <Logo />
         <Contact />        
     </header>
-    <main class="p-4">
+    <main class="pt-4">
         @Body
     </main>
     <footer class="border-t-2 border-black p-1">
