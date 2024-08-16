@@ -4,4 +4,6 @@ public sealed class FacebookOptions
 {
     public required string GroupId { get; set; }
     public required string AccessToken { get; set; }
+    public required string AppId { get; set; }
+    public required string AppSecret { get; set; }
 }

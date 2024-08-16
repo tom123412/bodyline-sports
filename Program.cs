@@ -10,9 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenTelemetry().UseAzureMonitor();
 builder.Services.AddMemoryCache();
 
-builder.Services.Configure<FacebookOptions>(
-    builder.Configuration.GetSection(
-        key: nameof(FacebookOptions)));
+builder.Services.Configure<FacebookOptions>(builder.Configuration.GetSection(key: nameof(FacebookOptions)));
+builder.Services.Configure<ContactOptions>(builder.Configuration.GetSection(key: nameof(ContactOptions)));
 
 builder.Services.AddHttpClient("Facebook", httpClient =>
 {
