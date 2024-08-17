@@ -3,10 +3,10 @@
 @inherits LayoutComponentBase
 
 <div class="grid h-screen grid-rows-[auto_1fr_auto] p-2">
-    <header class="grid gap-x-4 border-b-2 border-black grid-rows-[1fr] lg:grid-cols-[1fr_3fr_auto] shadow-lg p-1">
-        <About />
+    <header class="grid gap-x-4 border-b-2 border-black [grid-template-areas:'about_about''logo_contact'] lg:grid-cols-['1fr_auto'] shadow-lg p-1">
         <Logo />
         <Contact />        
+        <About />
     </header>
     <main class="pt-4">
         @Body

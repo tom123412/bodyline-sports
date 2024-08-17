@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -8,6 +9,7 @@ public class Post
     public string? Message { get; set; }
     public Uri? PictureUrl { get; set; }
     public required string Id { get; set; } 
+    public required Attachments Attachments { get; set; } 
     
     [JsonPropertyName("updated_time")]
     [JsonConverter(typeof(FacebookDateTimeConverter))]

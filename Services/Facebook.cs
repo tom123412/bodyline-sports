@@ -71,7 +71,7 @@ public class Facebook : IFacebook
     {
         var cacheKey = $"Posts-{group.Id}";
         var posts = _cache.Get<Post[]>(cacheKey)?.ToList() ?? [];
-        var url = $"/{group.Id}/feed?since={posts.FirstOrDefault()?.UpdatedDateTime.ToString("s")}&limit=10&access_token={_options.AccessToken}";
+        var url = $"/{group.Id}/feed?fields=attachments,message,updated_time&since={posts.FirstOrDefault()?.UpdatedDateTime.ToString("s")}&limit={_options.PostsToLoad}&access_token={_options.AccessToken}";
         var feed = await _httpClient.GetFromJsonAsync<GroupFeed>(url);
         var newPosts = (feed?.Data ?? []).ToList();
 

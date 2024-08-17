@@ -3,7 +3,7 @@
 
 @inject IOptions<ContactOptions> options
 
-<div class="p-2 flex lg:flex-col gap-1 justify-center flex-wrap">
+<div class="p-2 flex lg:flex-col gap-1 justify-center flex-wrap [grid-area:contact]">
     <p class="flex gap-x-2">
         <span class="material-symbols-sharp">mail</span>
         <a href="@options.Value.EmailLink" target="_blank">@options.Value.Email</a>
