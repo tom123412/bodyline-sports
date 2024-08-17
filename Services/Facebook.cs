@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json.Serialization;
 using bodyline_sports.Models;
 using bodyline_sports.Options;
@@ -57,7 +56,8 @@ public class Facebook : IFacebook
     async Task<Group?> IFacebook.GetGroup(string groupId)
     {
         var cacheKey = $"Group-{groupId}";
-        var group = _cache.Get<Group>(cacheKey) ?? await _httpClient.GetFromJsonAsync<Group>($"/{groupId}?fields=description,cover&access_token={_options.AccessToken}");
+        var url = $"/{groupId}?fields=description,cover";
+        var group = _cache.Get<Group>(cacheKey) ?? await _httpClient.GetFromJsonAsync<Group>(url);
         
         if (group is not null)
         {
@@ -71,7 +71,7 @@ public class Facebook : IFacebook
     {
         var cacheKey = $"Posts-{group.Id}";
         var posts = _cache.Get<Post[]>(cacheKey)?.ToList() ?? [];
-        var url = $"/{group.Id}/feed?fields=attachments,message,updated_time&since={posts.FirstOrDefault()?.UpdatedDateTime.ToString("s")}&limit={_options.PostsToLoad}&access_token={_options.AccessToken}";
+        var url = $"/{group.Id}/feed?fields=attachments,message,updated_time&since={posts.FirstOrDefault()?.UpdatedDateTime.ToString("s")}&limit={_options.PostsToLoad}";
         var feed = await _httpClient.GetFromJsonAsync<GroupFeed>(url);
         var newPosts = (feed?.Data ?? []).ToList();
 
