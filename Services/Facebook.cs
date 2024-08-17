@@ -75,26 +75,10 @@ public class Facebook : IFacebook
         var feed = await _httpClient.GetFromJsonAsync<GroupFeed>(url);
         var newPosts = (feed?.Data ?? []).ToList();
 
-        var tasks = new List<Task>();
-        foreach (var post in newPosts)
-        {
-            tasks.Add(SetPictureInPost(post));
-        }
-        await Task.WhenAll(tasks);
-
         newPosts.AddRange(posts);
 
         _cache.Set(cacheKey, newPosts.ToArray(), _cacheOptions);
 
         return _cache.Get<Post[]>(cacheKey)!;
-    }
-
-    private async Task SetPictureInPost(Post post)
-    {
-        var pictureId = (await _httpClient.GetFromJsonAsync<Field>($"/{post.Id}?fields=object_id&access_token={_options.AccessToken}"))?.ObjectId;
-        if (pictureId is not null)
-        {
-            post.PictureUrl = (await _httpClient.GetFromJsonAsync<Picture>($"/{pictureId}/picture?redirect=false&access_token={_options.AccessToken}"))?.Data.Url;
-        }
     }
 }
