@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* for some reason tailwindcss is not generating these */
 .bg-slate-100 {
     background-color: rgb(241 245 249);
 }

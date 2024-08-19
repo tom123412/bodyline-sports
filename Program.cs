@@ -3,6 +3,9 @@ using bodyline_sports.Components;
 using bodyline_sports.Http;
 using bodyline_sports.Options;
 using bodyline_sports.Services;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +18,19 @@ builder.Services.Configure<FacebookOptions>(builder.Configuration.GetSection(key
 builder.Services.Configure<ContactOptions>(builder.Configuration.GetSection(key: nameof(ContactOptions)));
 
 builder.Services
+    .AddAuthentication()
+    .AddFacebook(facebookOptions =>
+    {
+        facebookOptions.AppId = builder.Configuration["FacebookOptions:AppId"] ?? facebookOptions.AppId;
+        facebookOptions.AppSecret = builder.Configuration["FacebookOptions:AppSecret"] ?? facebookOptions.AppSecret;
+    })
+    .AddIdentityCookies()
+    ;
+
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
+builder.Services
     .AddHttpClient("Facebook", (httpClient) =>
     {
         httpClient.BaseAddress = new Uri("https://graph.facebook.com/v20.0/");
@@ -25,9 +41,12 @@ builder.Services
 
 builder.Services.AddTransient<AddAuthorisationHeaderHandler>();
 builder.Services.AddScoped<IFacebook, Facebook>();
+builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services
+    .AddRazorComponents()
+    //.AddInteractiveServerComponents()
+    ;
 
 var app = builder.Build();
 
@@ -44,7 +63,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app
+    .MapRazorComponents<App>()
+    //.AddInteractiveServerRenderMode()
+    ;
 
 app.Run();
