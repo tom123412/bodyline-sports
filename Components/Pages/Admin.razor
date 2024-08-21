@@ -1,6 +1,9 @@
 ﻿@page "/admin"
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using bodyline_sports.Components.Components
+
+@attribute [Authorize]
 
 <PageTitle>Bodyline Sports (Admin)</PageTitle>
 
