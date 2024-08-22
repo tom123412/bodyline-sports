@@ -8,7 +8,7 @@ public class Post
 {
     public string? Message { get; set; }
     public required string Id { get; set; } 
-    public required Attachments Attachments { get; set; } 
+    public Attachments? Attachments { get; set; } 
     
     [JsonPropertyName("updated_time")]
     [JsonConverter(typeof(FacebookDateTimeConverter))]

@@ -10,46 +10,16 @@
     <article class="p-2 bg-white rounded-xl shadow-md basis-4/5 shadow-black h-min">
         <p class="text-xs">@post.UpdatedDateTime.LocalDateTime.ToString(@"dd MMMM \a\t HH:mm")</p>
         <p class="pt-1">@((MarkupString?)(post.Message?.Replace("\n", "<br />") ?? string.Empty))</p>
-        @if (post.Attachments.Data[0].SubAttachments is not null)
+        @if (post.Attachments is not null)
         {
-            <div class="grid grid-cols-6 gap-1">
-                @{
-                    var numberOfImages = Math.Min(5, post.Attachments.Data[0].SubAttachments!.Data.Length);
-                    var colsToSpan = new Dictionary<(int index, int numberOfImages), string>
-                    {
-                        {(0, 5), "col-span-3"},
-                        {(1, 5), "col-span-3"},
-                        {(2, 5), "col-span-2"},
-                        {(3, 5), "col-span-2"},
-                        {(4, 5), "col-span-2"},
-                        {(0, 4), "col-span-3"},
-                        {(1, 4), "col-span-3"},
-                        {(2, 4), "col-span-3"},
-                        {(3, 4), "col-span-3"},
-                        {(0, 3), "col-span-2"},
-                        {(1, 3), "col-span-2"},
-                        {(2, 3), "col-span-2"},
-                        {(0, 2), "col-span-6"},
-                        {(1, 2), "col-span-6"},
-                        {(0, 1), "col-span-6"},
-                    };
-                }
-                @for (var i = 0; i < numberOfImages; i++)
-                {
-                    var attachment = post.Attachments.Data[0].SubAttachments!.Data[i];
-                    var elClass = colsToSpan[(i, numberOfImages)];
-                    <a class="@(elClass)" href="@(attachment.Media.Image.Src)" target="_blank">
-                        <img alt="@(attachment.Description)" src="@(attachment.Media.Image.Src)" class="mx-auto" />
-                    </a>
-                }
-            </div>
-        }
-        else
-        {
-            <a href="@(post.Attachments.Data[0].Media.Image.Src)" target="_blank">
-                <img alt="@(post.Attachments.Data[0].Title)" src="@(post.Attachments.Data[0].Media.Image.Src)"
-                    class="mx-auto pt-2" />
-            </a>
+            @if (post.Attachments.Data[0].SubAttachments is not null)
+            {
+                <FacebookPostsMultipleImages SubAttachmentsDatas="post.Attachments.Data[0].SubAttachments.Data" />
+            }
+            else
+            {
+                <FacebookPostsImage AttachmentsData="post.Attachments.Data[0]" />
+            }
         }
     </article>
 }

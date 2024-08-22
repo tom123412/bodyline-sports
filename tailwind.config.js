@@ -1,12 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./Components/**/*.razor"],
+  safelist: [
+  ],
   theme: {
-    colors: {
-      facebook: '#0866FF'
+    extend: {
+      colors: {
+        facebook: '#0866FF',
+      },
     },
-    extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 }
 

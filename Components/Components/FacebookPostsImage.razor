@@ -1,0 +1,11 @@
+@using bodyline_sports.Models
+
+<a href="@(AttachmentsData.Media.Image.Src)" target="_blank">
+    <img alt="@(AttachmentsData.Title)" src="@(AttachmentsData.Media.Image.Src)"
+        class="mx-auto pt-2" />
+</a>
+
+@code {
+    [Parameter]
+    public required AttachmentsData AttachmentsData { get; set; }
+}
