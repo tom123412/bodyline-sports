@@ -2,6 +2,7 @@
 @using bodyline_sports.Models
 @using bodyline_sports.Options
 @using bodyline_sports.Services
+
 @inject IFacebook facebookService
 @inject IOptions<FacebookOptions> options
 
@@ -14,7 +15,7 @@
         {
             @if (post.Attachments.Data[0].SubAttachments is not null)
             {
-                <FacebookPostsMultipleImages SubAttachmentsDatas="post.Attachments.Data[0].SubAttachments.Data" />
+                <FacebookPostsMultipleImages SubAttachmentsDatas="post.Attachments.Data[0].SubAttachments!.Data" />
             }
             else
             {
