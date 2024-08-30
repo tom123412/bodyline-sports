@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using bodyline_sports.Components;
 using bodyline_sports.Http;
@@ -12,6 +13,11 @@ using Microsoft.Net.Http.Headers;
 using FacebookOptions = bodyline_sports.Options.FacebookOptions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddAzureAppConfiguration((options) =>
+{
+    options.Connect(new Uri(builder.Configuration["Azure:AppConfigurationEndpoint"]!), new DefaultAzureCredential());
+});
 
 // Add services to the container.
 builder.Services.AddOpenTelemetry().UseAzureMonitor();

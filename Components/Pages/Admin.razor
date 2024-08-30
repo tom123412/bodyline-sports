@@ -1,47 +1,55 @@
 ﻿@page "/admin"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Configuration.UserSecrets
 @using Microsoft.Extensions.Options
 @using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using System.Text.Json
+@using System.Dynamic
 @using bodyline_sports.Components.Components
 @using global::bodyline_sports.Options
 
 @inject IOptions<ContactOptions> options
-	
+
 @attribute [Authorize]
 
 <PageTitle>Bodyline Sports (Admin)</PageTitle>
 
 <AuthorizeView Context="authContext">
-    <Authorized>
-        <p class="flex justify-end pr-2">Hello, @authContext.User.Identity?.Name!</p>
-        <EditForm OnValidSubmit="Submit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
-          <DataAnnotationsValidator />
-          <ValidationSummary />
-          <div class="p-4">
-            <h2 class="font-semibold">Contact details</h2>
+  <Authorized>
+    <p class="flex justify-end pr-2">Hello, @authContext.User.Identity?.Name!</p>
+    <EditForm OnValidSubmit="Submit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
+      <DataAnnotationsValidator />
+      <ValidationSummary class="text-xs text-red-600" />
+      <div class="p-4">
+        <h2 class="font-semibold">Contact details</h2>
 
-            <div class="mb-4 mt-4 grid lg:grid-cols-2 gap-10">
-              <div>
-                <div class="relative">
-                  <InputText @bind-Value="Model!.Email" id="email" type="email" class="px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
-                  <label for="email" class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Email</label>
-                </div>
-                <ValidationMessage For="() => Model.Email" class="mt-2 text-xs text-red-600"/>
-              </div>
+        <div class="mb-4 mt-4 grid lg:grid-cols-2 gap-10">
+          <div>
+            <div class="relative">
+              <InputText @bind-Value="Model!.Email" id="email" type="email"
+                class="px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " />
+              <label for="email"
+                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Email</label>
             </div>
-
-            <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+            <ValidationMessage For="() => Model.Email" class="mt-2 text-xs text-red-600" />
           </div>
-        </EditForm>
-    </Authorized>
-    <NotAuthorized>
-        <p>You're not authorized.</p>
-    </NotAuthorized>
+        </div>
+
+        <button type="submit"
+          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+      </div>
+    </EditForm>
+  </Authorized>
+  <NotAuthorized>
+    <p>You're not authorized.</p>
+  </NotAuthorized>
 </AuthorizeView>
 
 @code {
-  public sealed class ContactDetails
+  private sealed class Details
   {
     [EmailAddress]
     public required string Email { get; set; }
@@ -59,20 +67,23 @@
   private EditContext? _editContext;
 
   [SupplyParameterFromForm]
-  public ContactDetails? Model { get; set; }
+  private Details? Model { get; set; }
 
   protected override void OnInitialized()
   {
     Model ??= new()
-    {
-      Email = options.Value.Email,      
-    };
+      {
+        Email = options.Value.Email,
+        EmailLink = options.Value.EmailLink,
+        LandLine = options.Value.LandLine,
+        LandLineLink = options.Value.LandLineLink,
+      };
     _editContext = new(Model);
 
     base.OnInitialized();
   }
 
-  private void Submit()
+  private async Task Submit()
   {
-  }  
+  }
 }
