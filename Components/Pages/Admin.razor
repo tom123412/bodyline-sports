@@ -1,6 +1,9 @@
 ﻿@page "/admin"
+@using Azure.Data.AppConfiguration
+@using Azure.Identity
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Configuration.AzureAppConfiguration
 @using Microsoft.Extensions.Configuration.UserSecrets
 @using Microsoft.Extensions.Options
 @using System.ComponentModel.DataAnnotations
@@ -10,7 +13,9 @@
 @using bodyline_sports.Components.Components
 @using global::bodyline_sports.Options
 
-@inject IOptions<ContactOptions> options
+@inject IOptionsSnapshot<ContactOptions> contactOptions
+@inject IOptions<AzureOptions> azureOptions
+@inject IConfigurationRefresherProvider refresherProvider;
 
 @attribute [Authorize]
 
@@ -19,7 +24,7 @@
 <AuthorizeView Context="authContext">
   <Authorized>
     <p class="flex justify-end pr-2">Hello, @authContext.User.Identity?.Name!</p>
-    <EditForm OnValidSubmit="Submit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
+    <EditForm OnValidSubmit="Submit" FormName="AdminForm" EditContext="_editContext" novalidate>
       <DataAnnotationsValidator />
       <ValidationSummary class="text-xs text-red-600" />
       <div class="p-4">
@@ -73,10 +78,10 @@
   {
     Model ??= new()
       {
-        Email = options.Value.Email,
-        EmailLink = options.Value.EmailLink,
-        LandLine = options.Value.LandLine,
-        LandLineLink = options.Value.LandLineLink,
+        Email = contactOptions.Value.Email,
+        EmailLink = contactOptions.Value.EmailLink,
+        LandLine = contactOptions.Value.LandLine,
+        LandLineLink = contactOptions.Value.LandLineLink,
       };
     _editContext = new(Model);
 
@@ -85,5 +90,19 @@
 
   private async Task Submit()
   {
+    const string EmailKey = $"{nameof(ContactOptions)}:Email";
+    var client = new ConfigurationClient(azureOptions.Value.AppConfigurationEndpoint, new DefaultAzureCredential());
+    var settingToCreate = new ConfigurationSetting(EmailKey, Model!.Email);
+    await client.SetConfigurationSettingAsync(settingToCreate);
+
+    //await RefreshConfiguration();
+  }
+
+  public async Task RefreshConfiguration()
+  {
+    foreach (var refresher in refresherProvider.Refreshers)
+    {
+      await refresher.TryRefreshAsync();
+    }
   }
 }

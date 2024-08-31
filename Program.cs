@@ -16,15 +16,28 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddAzureAppConfiguration((options) =>
 {
-    options.Connect(new Uri(builder.Configuration["Azure:AppConfigurationEndpoint"]!), new DefaultAzureCredential());
+    options
+        .Connect(new Uri(builder.Configuration["AzureOptions:AppConfigurationEndpoint"]!), new DefaultAzureCredential())
+        .ConfigureRefresh(configure =>
+			{
+                var key = $"{nameof(ContactOptions)}:Email";
+				configure
+                    .Register($"{key}", refreshAll: true)
+                    .SetCacheExpiration(TimeSpan.FromSeconds(1))
+                    ;
+			})
+        ;
 });
 
 // Add services to the container.
 builder.Services.AddOpenTelemetry().UseAzureMonitor();
 builder.Services.AddMemoryCache();
 
+builder.Services.AddAzureAppConfiguration();
+
 builder.Services.Configure<FacebookOptions>(builder.Configuration.GetSection(key: nameof(FacebookOptions)));
 builder.Services.Configure<ContactOptions>(builder.Configuration.GetSection(key: nameof(ContactOptions)));
+builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(key: nameof(AzureOptions)));
 
 builder.Services
     .AddAuthentication(options =>
@@ -84,6 +97,8 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.UseAzureAppConfiguration();
 
 app
     .MapRazorComponents<App>()

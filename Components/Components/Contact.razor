@@ -1,7 +1,7 @@
 @using Microsoft.Extensions.Options
 @using bodyline_sports.Options
 
-@inject IOptionsMonitor<ContactOptions> options
+@inject IOptionsSnapshot<ContactOptions> options
 
 <div class="p-2 flex lg:flex-col gap-1 justify-center flex-wrap [grid-area:contact]">
     <p class="flex gap-x-2">
@@ -52,19 +52,19 @@
     {
         _model = new()
             {
-                Email = options.CurrentValue.Email,
-                EmailLink = options.CurrentValue.EmailLink,
-                LandLine = options.CurrentValue.LandLine,
-                LandLineLink = options.CurrentValue.LandLineLink,
-                Address = options.CurrentValue.Address,
-                AddressLink = options.CurrentValue.AddressLink,
-                Mobile = options.CurrentValue.Mobile,
-                MobileLink = options.CurrentValue.MobileLink,
-                FacebookPageName = options.CurrentValue.FacebookPageName,
-                FacebookPageLink = options.CurrentValue.FacebookPageLink,
+                Email = options.Value.Email,
+                EmailLink = options.Value.EmailLink,
+                LandLine = options.Value.LandLine,
+                LandLineLink = options.Value.LandLineLink,
+                Address = options.Value.Address,
+                AddressLink = options.Value.AddressLink,
+                Mobile = options.Value.Mobile,
+                MobileLink = options.Value.MobileLink,
+                FacebookPageName = options.Value.FacebookPageName,
+                FacebookPageLink = options.Value.FacebookPageLink,
             };
 
-        options.OnChange(vals =>
+        @* options.OnChange(vals =>
         {
             _model = new()
                 {
@@ -80,6 +80,11 @@
                     FacebookPageLink = vals.FacebookPageLink,
                 };
             StateHasChanged();
-        });
+        }); *@
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        
     }
 }
