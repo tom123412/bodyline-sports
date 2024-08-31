@@ -1,5 +1,3 @@
-using System;
-
 namespace bodyline_sports.Models;
 
 public class Photo

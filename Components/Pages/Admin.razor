@@ -1,6 +1,7 @@
 ﻿@page "/admin"
 @using Azure.Data.AppConfiguration
 @using Azure.Identity
+@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.Extensions.Configuration.AzureAppConfiguration
@@ -11,11 +12,16 @@
 @using System.Text.Json
 @using System.Dynamic
 @using bodyline_sports.Components.Components
+@using bodyline_sports.Services
 @using global::bodyline_sports.Options
 
 @inject IOptionsSnapshot<ContactOptions> contactOptions
 @inject IOptions<AzureOptions> azureOptions
-@inject IConfigurationRefresherProvider refresherProvider;
+@inject IFacebook facebook
+
+
+@inject IConfigurationRefresherProvider refresherProvider
+@inject IHttpContextAccessor httpContextAccessor
 
 @attribute [Authorize]
 
@@ -24,7 +30,7 @@
 <AuthorizeView Context="authContext">
   <Authorized>
     <p class="flex justify-end pr-2">Hello, @authContext.User.Identity?.Name!</p>
-    <EditForm OnValidSubmit="Submit" FormName="AdminForm" EditContext="_editContext" novalidate>
+    <EditForm OnValidSubmit="Submit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
       <DataAnnotationsValidator />
       <ValidationSummary class="text-xs text-red-600" />
       <div class="p-4">
@@ -58,7 +64,7 @@
   {
     [EmailAddress]
     public required string Email { get; set; }
-    public Uri? EmailLink { get; set; }
+    public required Uri EmailLink { get; set; }
     public string? LandLine { get; set; }
     public Uri? LandLineLink { get; set; }
     public string? Mobile { get; set; }
@@ -74,7 +80,10 @@
   [SupplyParameterFromForm]
   private Details? Model { get; set; }
 
-  protected override void OnInitialized()
+  [CascadingParameter]
+  public required Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+  protected async override Task OnInitializedAsync()
   {
     Model ??= new()
       {
@@ -84,6 +93,10 @@
         LandLineLink = contactOptions.Value.LandLineLink,
       };
     _editContext = new(Model);
+
+    var tokenDetails = await facebook.GetTokenDetails();
+
+    var token = await (httpContextAccessor.HttpContext?.GetTokenAsync("access_token") ?? Task.FromResult(default(string?)));
 
     base.OnInitialized();
   }

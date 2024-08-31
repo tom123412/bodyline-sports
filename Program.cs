@@ -35,6 +35,8 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddAzureAppConfiguration();
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.Configure<FacebookOptions>(builder.Configuration.GetSection(key: nameof(FacebookOptions)));
 builder.Services.Configure<ContactOptions>(builder.Configuration.GetSection(key: nameof(ContactOptions)));
 builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(key: nameof(AzureOptions)));
@@ -55,8 +57,9 @@ builder.Services
             {
                 context.Response.Redirect($"{context.RedirectUri}&config_id={builder.Configuration["FacebookOptions:ConfigId"]}");
                 return Task.CompletedTask;
-            }
+            },
         };
+        facebookOptions.SaveTokens = true;
     })
     .AddCookie()
     .AddIdentityCookies()
