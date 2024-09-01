@@ -17,6 +17,7 @@
 
 @inject IOptionsSnapshot<ContactOptions> contactOptions
 @inject IOptions<AzureOptions> azureOptions
+@inject IOptions<FacebookOptions> facebookOptions
 @inject IFacebook facebook
 
 
@@ -35,15 +36,30 @@
       <ValidationSummary class="text-xs text-red-600" />
       <div class="p-4">
         <h2 class="font-semibold">Contact details</h2>
-
         <div class="mb-4 mt-4 grid lg:grid-cols-2 gap-10">
           <div>
             <div class="relative">
               <InputText @bind-Value="Model!.Email" id="email" type="email"
-                class="px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                class="px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=" " />
               <label for="email"
                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Email</label>
+            </div>
+            <ValidationMessage For="() => Model.Email" class="mt-2 text-xs text-red-600" />
+          </div>
+        </div>
+
+        <h2 class="font-semibold">Access token</h2>
+        <div class="mb-4 mt-4 grid lg:grid-cols-2 gap-10">
+          <div>
+            <p class="text-sm text-gray-400 p-2.5">Access token will expire on @Model!.TokenExpiresAt</p>
+            <div class="relative">
+              <InputText @bind-Value="Model!.AccessToken" id="access-token" type="password" readonly
+                class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " />
+              <label for="access-token"
+                class="absolute text-sm text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1">Access
+                token</label>
             </div>
             <ValidationMessage For="() => Model.Email" class="mt-2 text-xs text-red-600" />
           </div>
@@ -64,7 +80,7 @@
   {
     [EmailAddress]
     public required string Email { get; set; }
-    public required Uri EmailLink { get; set; }
+    public Uri? EmailLink { get; set; }
     public string? LandLine { get; set; }
     public Uri? LandLineLink { get; set; }
     public string? Mobile { get; set; }
@@ -73,6 +89,8 @@
     public Uri? AddressLink { get; set; }
     public string? FacebookPageName { get; set; }
     public Uri? FacebookPageLink { get; set; }
+    public DateTime? TokenExpiresAt { get; set; }
+    public required string AccessToken { get; set; }
   }
 
   private EditContext? _editContext;
@@ -80,10 +98,17 @@
   [SupplyParameterFromForm]
   private Details? Model { get; set; }
 
-  [CascadingParameter]
-  public required Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
   protected async override Task OnInitializedAsync()
+  {
+    var tokenExpiresAt = (await facebook.GetTokenDetails()).Data.ExpiresAt.LocalDateTime;
+    Model!.TokenExpiresAt = tokenExpiresAt;
+
+    var token = await (httpContextAccessor.HttpContext?.GetTokenAsync("access_token") ?? Task.FromResult(default(string?)));
+
+    await base.OnInitializedAsync();
+  }
+
+  protected override void OnInitialized()
   {
     Model ??= new()
       {
@@ -91,12 +116,9 @@
         EmailLink = contactOptions.Value.EmailLink,
         LandLine = contactOptions.Value.LandLine,
         LandLineLink = contactOptions.Value.LandLineLink,
+        AccessToken = facebookOptions.Value.AccessToken,
       };
     _editContext = new(Model);
-
-    var tokenDetails = await facebook.GetTokenDetails();
-
-    var token = await (httpContextAccessor.HttpContext?.GetTokenAsync("access_token") ?? Task.FromResult(default(string?)));
 
     base.OnInitialized();
   }
