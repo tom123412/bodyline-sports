@@ -12,6 +12,7 @@
 @using System.Text.Json
 @using System.Dynamic
 @using bodyline_sports.Components.Components
+@using bodyline_sports.Models
 @using bodyline_sports.Services
 @using global::bodyline_sports.Options
 
@@ -31,7 +32,7 @@
 <AuthorizeView Context="authContext">
   <Authorized>
     <p class="flex justify-end pr-2">Hello, @authContext.User.Identity?.Name!</p>
-    <EditForm OnValidSubmit="Submit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
+    <EditForm OnValidSubmit="OnSubmit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
       <DataAnnotationsValidator />
       <ValidationSummary class="text-xs text-red-600" />
       <div class="p-4">
@@ -49,24 +50,9 @@
           </div>
         </div>
 
-        <h2 class="font-semibold">Access token</h2>
-        <div class="mb-4 mt-4 grid lg:grid-cols-2 gap-10">
-          <div>
-            <p class="text-sm text-gray-400 p-2.5">Access token will expire on @Model!.TokenExpiresAt</p>
-            <div class="relative">
-              <InputText @bind-Value="Model!.AccessToken" id="access-token" type="password" readonly
-                class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                placeholder=" " />
-              <label for="access-token"
-                class="absolute text-sm text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1">Access
-                token</label>
-            </div>
-            <ValidationMessage For="() => Model.Email" class="mt-2 text-xs text-red-600" />
-          </div>
-        </div>
+        <AccessToken LongTermAccessToken="@Model.AccessToken" TokenDetails="@Model.TokenData" />
 
-        <button type="submit"
-          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 mt-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
       </div>
     </EditForm>
   </Authorized>
@@ -89,7 +75,7 @@
     public Uri? AddressLink { get; set; }
     public string? FacebookPageName { get; set; }
     public Uri? FacebookPageLink { get; set; }
-    public DateTime? TokenExpiresAt { get; set; }
+    public TokenData? TokenData { get; set; }
     public required string AccessToken { get; set; }
   }
 
@@ -100,8 +86,7 @@
 
   protected async override Task OnInitializedAsync()
   {
-    var tokenExpiresAt = (await facebook.GetTokenDetails()).Data.ExpiresAt.LocalDateTime;
-    Model!.TokenExpiresAt = tokenExpiresAt;
+    Model!.TokenData = (await facebook.GetTokenDetails()).Data;
 
     var token = await (httpContextAccessor.HttpContext?.GetTokenAsync("access_token") ?? Task.FromResult(default(string?)));
 
@@ -123,7 +108,12 @@
     base.OnInitialized();
   }
 
-  private async Task Submit()
+  private void OnGenerateNewToken()
+  {
+
+  }
+
+  private async Task OnSubmit()
   {
     const string EmailKey = $"{nameof(ContactOptions)}:Email";
     var client = new ConfigurationClient(azureOptions.Value.AppConfigurationEndpoint, new DefaultAzureCredential());
