@@ -29,7 +29,6 @@ builder.Configuration.AddAzureAppConfiguration((options) =>
         ;
 });
 
-// Add services to the container.
 builder.Services.AddOpenTelemetry().UseAzureMonitor();
 builder.Services.AddMemoryCache();
 
@@ -40,6 +39,12 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<FacebookOptions>(builder.Configuration.GetSection(key: nameof(FacebookOptions)));
 builder.Services.Configure<ContactOptions>(builder.Configuration.GetSection(key: nameof(ContactOptions)));
 builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(key: nameof(AzureOptions)));
+
+builder.Services
+    .AddAuthorization(options => 
+    {
+        options.AddPolicy("Admin", policy => policy.RequireAssertion(context => false));
+    });
 
 builder.Services
     .AddAuthentication(options =>

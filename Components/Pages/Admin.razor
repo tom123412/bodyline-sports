@@ -25,7 +25,7 @@
 @inject IConfigurationRefresherProvider refresherProvider
 @inject IHttpContextAccessor httpContextAccessor
 
-@attribute [Authorize]
+@attribute [Authorize(Policy="Admin")]
 
 <PageTitle>Bodyline Sports (Admin)</PageTitle>
 
