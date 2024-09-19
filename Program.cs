@@ -83,7 +83,8 @@ builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStat
 
 builder.Services
     .AddRazorComponents()
-    //.AddInteractiveServerComponents()
+    .AddInteractiveServerComponents()
+    .AddInteractiveWebAssemblyComponents()
     ;
 
 var app = builder.Build();
@@ -105,7 +106,8 @@ app.UseAzureAppConfiguration();
 
 app
     .MapRazorComponents<App>()
-    //.AddInteractiveServerRenderMode()
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode()
     ;
 
 app.Run();

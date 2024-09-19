@@ -3,3 +3,4 @@ obj/
 wwwroot/css/app.css
 secrets.json
 node_modules/
+*.log

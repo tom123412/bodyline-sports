@@ -76,7 +76,7 @@ public class Facebook : IFacebook
         var feed = await _httpClient.GetFromJsonAsync<GroupFeed>(url);
         var newPosts = (feed?.Data ?? []).ToList();
 
-        newPosts.AddRange(posts);
+        newPosts.AddRange(posts.Where(p => p.Type != "Status"));
 
         _cache.Set(cacheKey, newPosts.ToArray(), _cacheOptions);
 

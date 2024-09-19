@@ -13,6 +13,8 @@ public class Post
     [JsonPropertyName("updated_time")]
     [JsonConverter(typeof(FacebookDateTimeConverter))]
     public required DateTimeOffset UpdatedDateTime { get; set; }
+    
+    public string? Type { get; set; }
 }
 
 class FacebookDateTimeConverter : JsonConverter<DateTimeOffset>
