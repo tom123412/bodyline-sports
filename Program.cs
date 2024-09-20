@@ -42,15 +42,13 @@ builder.Services.Configure<ContactOptions>(builder.Configuration.GetSection(key:
 builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(key: nameof(AzureOptions)));
 
 builder.Services
-    .AddAuthorization(options =>
-    {
-        options.AddPolicy("Admin", policy => policy.RequireAssertion(context =>
+    .AddAuthorizationBuilder()
+    .AddPolicy("Admin", policy => policy.RequireAssertion(context =>
         {
             var adminEmails = builder.Configuration.Get<AppSettings>()?.FacebookOptions.Administrators ?? [];
             var email = context.User.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Email);
             return adminEmails.Contains(email?.Value);
         }));
-    });
 
 builder.Services
     .AddAuthentication(options =>
@@ -76,7 +74,6 @@ builder.Services
     .AddIdentityCookies()
     ;
 
-builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services
@@ -95,7 +92,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStat
 builder.Services
     .AddRazorComponents()
     .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents()
+    //.AddInteractiveWebAssemblyComponents()
     ;
 
 var app = builder.Build();
@@ -118,7 +115,7 @@ app.UseAzureAppConfiguration();
 app
     .MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode()
+    //.AddInteractiveWebAssemblyRenderMode()
     ;
 
 app.Run();
