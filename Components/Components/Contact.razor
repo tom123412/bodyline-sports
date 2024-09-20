@@ -4,23 +4,23 @@
 @inject IOptionsSnapshot<ContactOptions> options
 
 <div class="p-2 flex lg:flex-col gap-1 justify-center flex-wrap [grid-area:contact]">
-    <p class="flex gap-x-2">
+    <p class="flex gap-x-2 w-full lg:w-fit justify-center items-center">
         <span class="material-symbols-sharp">mail</span>
         <a href="@_model!.EmailLink" target="_blank">@_model!.Email</a>
     </p>
-    <p class="flex gap-x-2">
+    <p class="flex gap-x-2 items-center">
         <span class="material-symbols-sharp">call</span>
         <a href="@_model!.LandLineLink" target="_blank">@_model!.LandLine</a>
     </p>
-    <p class="flex gap-x-2">
+    <p class="flex gap-x-2 items-center">
         <span class="material-symbols-sharp">smartphone</span>
         <a href="@_model!.MobileLink" target="_blank">@_model!.Mobile</a>
     </p>
-    <p class="flex gap-x-2">
+    <p class="flex gap-x-2 items-center">
         <span class="material-symbols-sharp">home</span>
         <a href="@_model!.AddressLink" target="_blank">@_model!.Address</a>
     </p>
-    <p class="flex gap-x-2">
+    <p class="flex gap-x-2 items-center">
         <svg class="fill-facebook" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24"
             viewBox="0 0 24 24" width="24">
             <rect fill="none" height="24" width="24" />
