@@ -8,4 +8,5 @@ public sealed class FacebookOptions
     public required string AppSecret { get; set; }
     public required string ConfigId { get; set; }
     public required int PostsToLoad { get; set; }
+    public required string[] Administrators { get; set; }
 }

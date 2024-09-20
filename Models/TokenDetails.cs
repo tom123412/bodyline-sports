@@ -29,6 +29,6 @@ class UnixTimeConverter : JsonConverter<DateTimeOffset>
 
     public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        // throw new NotImplementedException();
     }
 }

@@ -25,11 +25,11 @@
 @inject IConfigurationRefresherProvider refresherProvider
 @inject IHttpContextAccessor httpContextAccessor
 
-@attribute [Authorize(Policy="Admin")]
+@* @attribute [Authorize(Policy="Admin")] *@
 
 <PageTitle>Bodyline Sports (Admin)</PageTitle>
 
-<AuthorizeView Context="authContext">
+<AuthorizeView Context="authContext" Policy="Admin">
   <Authorized>
     <p class="flex justify-end pr-2">Hello, @authContext.User.Identity?.Name!</p>
     <EditForm OnValidSubmit="OnSubmit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>

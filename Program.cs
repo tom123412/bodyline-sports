@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using bodyline_sports.Components;
@@ -19,13 +20,13 @@ builder.Configuration.AddAzureAppConfiguration((options) =>
     options
         .Connect(new Uri(builder.Configuration["AzureOptions:AppConfigurationEndpoint"]!), new DefaultAzureCredential())
         .ConfigureRefresh(configure =>
-			{
+            {
                 var key = $"{nameof(ContactOptions)}:Email";
-				configure
+                configure
                     .Register($"{key}", refreshAll: true)
                     .SetCacheExpiration(TimeSpan.FromSeconds(1))
                     ;
-			})
+            })
         ;
 });
 
@@ -41,9 +42,14 @@ builder.Services.Configure<ContactOptions>(builder.Configuration.GetSection(key:
 builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(key: nameof(AzureOptions)));
 
 builder.Services
-    .AddAuthorization(options => 
+    .AddAuthorization(options =>
     {
-        options.AddPolicy("Admin", policy => policy.RequireAssertion(context => false));
+        options.AddPolicy("Admin", policy => policy.RequireAssertion(context =>
+        {
+            var adminEmails = builder.Configuration.Get<AppSettings>()?.FacebookOptions.Administrators ?? [];
+            var email = context.User.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Email);
+            return adminEmails.Contains(email?.Value);
+        }));
     });
 
 builder.Services
@@ -116,3 +122,8 @@ app
     ;
 
 app.Run();
+
+internal class AppSettings
+{
+    public required FacebookOptions FacebookOptions { get; set; }
+}
