@@ -8,13 +8,20 @@ namespace bodyline_sports.Services;
 
 public interface IFacebook
 {
-    public Task<Group?> GetGroup(string groupdId);  
+    public Task<Group?> GetGroup(string groupdId);
     public Task<Post[]> GetGroupPosts(Group group);
-    public Task<TokenDetails> GetTokenDetails();
+    public Task<TokenDetails> GetTokenDetails(string accessToken);
+    public Task<string> ExchangeForLongLivedToken(string accessToken);
 }
 
 public class Facebook : IFacebook
 {
+    private class AccessTokenDetails
+    {
+        [JsonPropertyName("access_token")]
+        public required string AccessToken { get; set; }
+    }
+
     private class GroupFeed
     {
         public required Post[] Data { get; set; }
@@ -22,10 +29,10 @@ public class Facebook : IFacebook
 
     private class Field
     {
-        public required string Id { get; set;}
-        
+        public required string Id { get; set; }
+
         [JsonPropertyName("object_id")]
-        public string? ObjectId { get; set;}
+        public string? ObjectId { get; set; }
     }
 
     private class Picture
@@ -59,7 +66,7 @@ public class Facebook : IFacebook
         var cacheKey = $"Group-{groupId}";
         var url = $"/{groupId}?fields=description,cover";
         var group = _cache.Get<Group>(cacheKey) ?? await _httpClient.GetFromJsonAsync<Group>(url);
-        
+
         if (group is not null)
         {
             _cache.Set(cacheKey, group, _cacheOptions);
@@ -83,10 +90,17 @@ public class Facebook : IFacebook
         return _cache.Get<Post[]>(cacheKey)!;
     }
 
-    async Task<TokenDetails> IFacebook.GetTokenDetails()
+    async Task<TokenDetails> IFacebook.GetTokenDetails(string accessToken)
     {
-        var url = $"/debug_token?input_token={_options.AccessToken}";
+        var url = $"/debug_token?input_token={accessToken}";
         var tokenDetails = await _httpClient.GetFromJsonAsync<TokenDetails>(url);
         return tokenDetails!;
+    }
+
+    async Task<string> IFacebook.ExchangeForLongLivedToken(string accessToken)
+    {
+        var url = $"/oauth/access_token?grant_type=fb_exchange_token&client_id={_options.AppId}&client_secret={_options.AppSecret}&fb_exchange_token={accessToken}";
+        var longLivedToken = await _httpClient.GetFromJsonAsync<AccessTokenDetails>(url);
+        return longLivedToken!.AccessToken;
     }
 }
