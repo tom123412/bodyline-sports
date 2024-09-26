@@ -5,6 +5,7 @@
 
 @inject IFacebook facebookService
 @inject IOptions<FacebookOptions> options
+@inject ILogger<Logo> logger    
 
 @foreach (var post in Posts)
 {
@@ -30,10 +31,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var group = await facebookService.GetGroup(options.Value.GroupId);
-        if (group is not null)
+        try
         {
-            Posts = await facebookService.GetGroupPosts(group);
+            var group = await facebookService.GetGroup(options.Value.GroupId);
+            if (group is not null)
+            {
+                Posts = await facebookService.GetGroupPosts(group);
+            }
         }
+        catch (HttpRequestException e)
+        {
+            logger.LogError(e, "{exceptionMessage} getting group details for {groupId}", e.Message, options.Value.GroupId);
+        }
+
     }
 }

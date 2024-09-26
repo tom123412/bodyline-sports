@@ -5,9 +5,10 @@
 
 @inject IFacebook facebookService
 @inject IOptions<FacebookOptions> options
+@inject ILogger<Logo> logger    
 
 <div class="[grid-area:logo]">
-    <img class="h-full" alt="logo" referrerpolicy="origin-when-cross-origin" src="@(Group?.Cover.Source)">
+    <img class="h-full" alt="logo" referrerpolicy="origin-when-cross-origin" src="@(Group?.Cover.Source ?? options.Value.DefaultLogoUrl)">
 </div>    
 
 @code {
@@ -15,6 +16,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Group = await facebookService.GetGroup(options.Value.GroupId);
+        try
+        {
+            Group = await facebookService.GetGroup(options.Value.GroupId);
+        }
+        catch (HttpRequestException e)
+        {
+            logger.LogError(e, "{exceptionMessage} getting group details for {groupId}", e.Message, options.Value.GroupId);
+        }
     }
 }

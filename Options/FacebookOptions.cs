@@ -9,4 +9,6 @@ public sealed class FacebookOptions
     public required string ConfigId { get; set; }
     public required int PostsToLoad { get; set; }
     public required string[] Administrators { get; set; }
+    public required string DefaultAboutMessage { get; set;}
+    public required Uri DefaultLogoUrl { get; set;}
 }
