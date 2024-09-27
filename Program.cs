@@ -5,6 +5,7 @@ using bodyline_sports.Components;
 using bodyline_sports.Http;
 using bodyline_sports.Options;
 using bodyline_sports.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -60,6 +61,7 @@ builder.Services
     {
         facebookOptions.AppId = builder.Configuration["FacebookOptions:AppId"] ?? facebookOptions.AppId;
         facebookOptions.AppSecret = builder.Configuration["FacebookOptions:AppSecret"] ?? facebookOptions.AppSecret;
+        facebookOptions.AccessDeniedPath = "/";
         facebookOptions.Events = new()
         {
             OnRedirectToAuthorizationEndpoint = (context) =>
@@ -117,6 +119,12 @@ app
     .AddInteractiveServerRenderMode()
     //.AddInteractiveWebAssemblyRenderMode()
     ;
+
+app.MapGet("/Account/SignOut", async (HttpContext context) =>
+{
+    await context.SignOutAsync();
+    context.Response.Redirect("/");
+});
 
 app.Run();
 

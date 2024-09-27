@@ -5,9 +5,9 @@
 
 <h2 class="font-semibold">Access token</h2>
 <div>
-    <p class="text-sm text-gray-400 p-2.5">Access token will expire on @ExpiresAt?.LocalDateTime</p>
+    <p class="text-sm text-gray-400 p-2.5">Access token will expire on @(ExpiresAt?.LocalDateTime.ToString() ?? "🤷‍♂️")</p>
     <div class="relative">
-        <InputText id="access-token" type="password" readonly
+        <input id="access-token" type="password" readonly value="long lived access token"
             class="px-2.5 pb-2.5 pt-4 text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder=" " />
         <label for="access-token"
@@ -22,6 +22,9 @@
 
 @code {
     [Parameter]
+    public required string UserAccessToken { get; set; }
+
+    [Parameter]
     public required string LongLivedAccessToken { get; set; }
 
     [Parameter]
@@ -29,7 +32,7 @@
 
     private async Task OnGenerateNewToken()
     {
-        LongLivedAccessToken = await facebook.ExchangeForLongLivedToken(LongLivedAccessToken);
+        LongLivedAccessToken = await facebook.ExchangeForLongLivedToken(UserAccessToken);
         ExpiresAt = (await facebook.GetTokenDetails(LongLivedAccessToken)).Data.ExpiresAt;
     }
 }

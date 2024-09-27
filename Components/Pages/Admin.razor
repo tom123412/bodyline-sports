@@ -20,16 +20,18 @@
 @inject IOptions<AzureOptions> azureOptions
 @inject IOptions<FacebookOptions> facebookOptions
 @inject IFacebook facebook
-
+@inject ILogger<Admin> logger
 
 @inject IConfigurationRefresherProvider refresherProvider
 @inject IHttpContextAccessor httpContextAccessor
+
+@attribute [Authorize(Policy="Admin")]
 
 <PageTitle>Bodyline Sports (Admin)</PageTitle>
 
 <AuthorizeView Context="authContext" Policy="Admin">
   <Authorized>
-    <p class="flex justify-end pr-2">Hello, @authContext.User.Identity?.Name!</p>
+    <a class="flex justify-end pr-2" href="/Account/SignOut">Hello, @authContext.User.Identity?.Name!</a>
     <EditForm OnValidSubmit="OnSubmit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
       <DataAnnotationsValidator />
       <ValidationSummary class="text-xs text-red-600" />
@@ -48,9 +50,11 @@
           </div>
         </div>
 
-        <AccessTokenAdmin LongLivedAccessToken="@Model.AccessToken" ExpiresAt="@Model.TokenData?.ExpiresAt" @rendermode="InteractiveServer"/>
+        <AccessTokenAdmin UserAccessToken="@Model.UserAccessToken" LongLivedAccessToken="@Model.LongLivedAccessToken"
+          ExpiresAt="@Model.TokenData?.ExpiresAt" @rendermode="InteractiveServer" />
 
-        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 mt-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+        <button type="submit"
+          class="rounded-md bg-indigo-600 px-3 py-2 mt-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
       </div>
     </EditForm>
   </Authorized>
@@ -74,7 +78,8 @@
     public string? FacebookPageName { get; set; }
     public Uri? FacebookPageLink { get; set; }
     public TokenData? TokenData { get; set; }
-    public required string AccessToken { get; set; }
+    public required string LongLivedAccessToken { get; set; }
+    public required string UserAccessToken { get; set; }
   }
 
   private EditContext? _editContext;
@@ -84,24 +89,36 @@
 
   protected async override Task OnInitializedAsync()
   {
-    Model!.TokenData = (await facebook.GetTokenDetails(facebookOptions.Value.AccessToken)).Data;
-
-    var token = await (httpContextAccessor.HttpContext?.GetTokenAsync("access_token") ?? Task.FromResult(default(string?)));
+    try
+    {
+      Model!.TokenData = (await facebook.GetTokenDetails(facebookOptions.Value.AccessToken)).Data;
+    }
+    catch (HttpRequestException e)
+    {
+      logger.LogError(e, "{exceptionMessage} getting token details", e.Message);
+    }
 
     await base.OnInitializedAsync();
   }
 
   protected override void OnInitialized()
   {
-    Model ??= new()
-      {
-        Email = contactOptions.Value.Email,
-        EmailLink = contactOptions.Value.EmailLink,
-        LandLine = contactOptions.Value.LandLine,
-        LandLineLink = contactOptions.Value.LandLineLink,
-        AccessToken = facebookOptions.Value.AccessToken,
-      };
-    _editContext = new(Model);
+    if (httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false)
+    {
+      var authFeatures = httpContextAccessor.HttpContext?.Features.Get<IAuthenticateResultFeature>();
+      var userAccessToken = authFeatures!.AuthenticateResult!.Properties!.GetTokenValue("access_token");
+
+      Model ??= new()
+        {
+          Email = contactOptions.Value.Email,
+          EmailLink = contactOptions.Value.EmailLink,
+          LandLine = contactOptions.Value.LandLine,
+          LandLineLink = contactOptions.Value.LandLineLink,
+          LongLivedAccessToken = facebookOptions.Value.AccessToken,
+          UserAccessToken = userAccessToken!,
+        };
+      _editContext = new(Model);
+    }
 
     base.OnInitialized();
   }
