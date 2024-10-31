@@ -25,7 +25,7 @@
 @inject IConfigurationRefresherProvider refresherProvider
 @inject IHttpContextAccessor httpContextAccessor
 
-@attribute [Authorize(Policy="Admin")]
+@attribute [Authorize(Policy = "Admin")]
 
 <PageTitle>Bodyline Sports (Admin)</PageTitle>
 
@@ -48,9 +48,39 @@
             </div>
             <ValidationMessage For="() => Model.Email" class="mt-2 text-xs text-red-600" />
           </div>
+          <div>
+            <div class="relative">
+              <InputText @bind-Value="Model!.EmailLink" id="email-link" type="email"
+                class="px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " />
+              <label for="email-link"
+                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Email link</label>
+            </div>
+            <ValidationMessage For="() => Model.EmailLink" class="mt-2 text-xs text-red-600" />
+          </div>
+          <div>
+            <div class="relative">
+              <InputText @bind-Value="Model!.LandLine" id="landline" type="tel"
+                class="px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " />
+              <label for="landline"
+                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Landline</label>
+            </div>
+            <ValidationMessage For="() => Model.LandLine" class="mt-2 text-xs text-red-600" />
+          </div>
+          <div>
+            <div class="relative">
+              <InputText @bind-Value="Model!.LandLineLink" id="landline-link" type="email"
+                class="px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " />
+              <label for="landline-link"
+                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">Landline link</label>
+            </div>
+            <ValidationMessage For="() => Model.LandLineLink" class="mt-2 text-xs text-red-600" />
+          </div>
         </div>
 
-        <AccessTokenAdmin UserAccessToken="@Model.UserAccessToken" LongLivedAccessToken="@Model.LongLivedAccessToken"
+        <AccessTokenAdmin UserAccessToken="@UserAccessToken" @bind-LongLivedAccessToken="@LongLivedAccessToken"
           ExpiresAt="@Model.TokenData?.ExpiresAt" @rendermode="InteractiveServer" />
 
         <button type="submit"
@@ -68,9 +98,11 @@
   {
     [EmailAddress]
     public required string Email { get; set; }
-    public required Uri EmailLink { get; set; }
+    public required string EmailLink { get; set; }
+    public Uri EMailLinkUri => new Uri(EmailLink);
     public required string LandLine { get; set; }
-    public required Uri LandLineLink { get; set; }
+    public required string LandLineLink { get; set; }
+    public Uri LandLineUri => new Uri(LandLine);
     public string? Mobile { get; set; }
     public Uri? MobileLink { get; set; }
     public string? Address { get; set; }
@@ -78,14 +110,15 @@
     public string? FacebookPageName { get; set; }
     public Uri? FacebookPageLink { get; set; }
     public TokenData? TokenData { get; set; }
-    public required string LongLivedAccessToken { get; set; }
-    public required string UserAccessToken { get; set; }
   }
 
   private EditContext? _editContext;
 
   [SupplyParameterFromForm]
   private Details? Model { get; set; }
+
+  private string? LongLivedAccessToken { get; set; }
+  private string? UserAccessToken { get; set; }
 
   protected async override Task OnInitializedAsync()
   {
@@ -111,12 +144,14 @@
       Model ??= new()
         {
           Email = contactOptions.Value.Email,
-          EmailLink = contactOptions.Value.EmailLink,
+          EmailLink = contactOptions.Value.EmailLink.ToString(),
           LandLine = contactOptions.Value.LandLine,
-          LandLineLink = contactOptions.Value.LandLineLink,
-          LongLivedAccessToken = facebookOptions.Value.AccessToken,
-          UserAccessToken = userAccessToken!,
+          LandLineLink = contactOptions.Value.LandLineLink.ToString(),
         };
+
+      LongLivedAccessToken = facebookOptions.Value.AccessToken;
+      UserAccessToken = userAccessToken!;
+
       _editContext = new(Model);
     }
 
@@ -126,9 +161,11 @@
   private async Task OnSubmit()
   {
     const string EmailKey = $"{nameof(ContactOptions)}:Email";
+    const string AccessTokenKey = $"{nameof(FacebookOptions)}:AccessToken";
+
     var client = new ConfigurationClient(azureOptions.Value.AppConfigurationEndpoint, new DefaultAzureCredential());
-    var settingToCreate = new ConfigurationSetting(EmailKey, Model!.Email);
-    await client.SetConfigurationSettingAsync(settingToCreate);
+    await client.SetConfigurationSettingAsync(new ConfigurationSetting(EmailKey, Model!.Email));
+    await client.SetConfigurationSettingAsync(new ConfigurationSetting(AccessTokenKey, LongLivedAccessToken));
 
     //await RefreshConfiguration();
   }

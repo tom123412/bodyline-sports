@@ -17,7 +17,7 @@ public class AddAuthorisationHeaderHandler : DelegatingHandler
 
     private readonly FacebookOptions _options;
 
-    public AddAuthorisationHeaderHandler(IOptions<FacebookOptions> options)
+    public AddAuthorisationHeaderHandler(IOptionsSnapshot<FacebookOptions> options)
     {
         _options = options.Value;
     }

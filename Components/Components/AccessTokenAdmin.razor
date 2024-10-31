@@ -2,18 +2,13 @@
 @using bodyline_sports.Services
 
 @inject IFacebook facebook
+@inject ILogger<AccessTokenAdmin> logger
 
 <h2 class="font-semibold">Access token</h2>
 <div>
-    <p class="text-sm text-gray-400 p-2.5">Access token will expire on @(ExpiresAt?.LocalDateTime.ToString() ?? "🤷‍♂️")</p>
+    <p class="text-sm text-gray-400 p-2.5">Access token will expire on @(ExpiresAt?.LocalDateTime.ToString() ?? "🤷‍♂️")
+    </p>
     <div class="relative">
-        <input id="access-token" type="password" readonly value="long lived access token"
-            class="px-2.5 pb-2.5 pt-4 text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" " />
-        <label for="access-token"
-            class="absolute text-sm text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1">
-            Access token
-        </label>
         <button type="button" @onclick="OnGenerateNewToken"
             class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Generate
             new token</button>
@@ -30,9 +25,20 @@
     [Parameter]
     public required DateTimeOffset? ExpiresAt { get; set; }
 
+    [Parameter]
+    public EventCallback<string> LongLivedAccessTokenChanged { get; set; }
+
     private async Task OnGenerateNewToken()
     {
         LongLivedAccessToken = await facebook.ExchangeForLongLivedToken(UserAccessToken);
-        ExpiresAt = (await facebook.GetTokenDetails(LongLivedAccessToken)).Data.ExpiresAt;
+        try
+        {
+            ExpiresAt = (await facebook.GetTokenDetails(LongLivedAccessToken)).Data.ExpiresAt;
+        }
+        catch (HttpRequestException e)
+        {
+            logger.LogError(e, "{exceptionMessage} getting token expiry", e.Message);
+        }
+        await LongLivedAccessTokenChanged.InvokeAsync(LongLivedAccessToken);
     }
 }
