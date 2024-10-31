@@ -25,7 +25,7 @@ builder.Configuration.AddAzureAppConfiguration((options) =>
                 var key = $"{nameof(ContactOptions)}:Email";
                 configure
                     .Register($"{key}", refreshAll: true)
-                    .SetCacheExpiration(TimeSpan.FromSeconds(1))
+                    .SetRefreshInterval(TimeSpan.FromSeconds(1))
                     ;
             })
         ;

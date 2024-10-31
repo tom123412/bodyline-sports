@@ -8,7 +8,7 @@
 @inject ILogger<About> logger
 
 <div class="p-2 text-center [grid-area:about] flex flex-col items-center">
-    <a href="/"><img class="w-96" src="/bodyline-sports-logo.jpg" alt="logo"></a>
+    <a class="p-2 bg-white" href="/"><img class="w-96" src="/bodyline-sports-logo.jpg" alt="logo"></a>
     <p class="pt-2">@(Group?.Description ?? options.Value.DefaultAboutMessage)</p>
 </div>
 
