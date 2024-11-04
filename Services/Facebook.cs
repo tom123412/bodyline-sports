@@ -10,7 +10,7 @@ public interface IFacebook
 {
     public Task<Group?> GetGroup(string groupdId);
     public Task<Post[]> GetGroupPosts(Group group);
-    public Task<TokenDetails> GetTokenDetails(string accessToken);
+    public Task<TokenDetails> GetTokenDetails(string accessToken, string userAccessToken);
     public Task<string> ExchangeForLongLivedToken(string accessToken);
 }
 
@@ -90,9 +90,9 @@ public class Facebook : IFacebook
         return _cache.Get<Post[]>(cacheKey)!;
     }
 
-    async Task<TokenDetails> IFacebook.GetTokenDetails(string accessToken)
+    async Task<TokenDetails> IFacebook.GetTokenDetails(string accessToken, string userAccessToken)
     {
-        var url = $"/debug_token?input_token={accessToken}";
+        var url = $"/debug_token?input_token={accessToken}&access_token={userAccessToken}";
         var tokenDetails = await _httpClient.GetFromJsonAsync<TokenDetails>(url);
         return tokenDetails!;
     }

@@ -22,7 +22,7 @@ builder.Configuration.AddAzureAppConfiguration((options) =>
         .Connect(new Uri(builder.Configuration["AzureOptions:AppConfigurationEndpoint"]!), new DefaultAzureCredential())
         .ConfigureRefresh(configure =>
             {
-                var key = $"{nameof(ContactOptions)}:Email";
+                var key = $"{nameof(FacebookOptions)}:AccessToken";
                 configure
                     .Register($"{key}", refreshAll: true)
                     .SetRefreshInterval(TimeSpan.FromSeconds(1))

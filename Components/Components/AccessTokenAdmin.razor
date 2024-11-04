@@ -1,4 +1,7 @@
+@using Azure.Data.AppConfiguration
+@using Azure.Identity
 @using bodyline_sports.Models
+@using bodyline_sports.Options
 @using bodyline_sports.Services
 
 @inject IFacebook facebook
@@ -26,19 +29,16 @@
     public required DateTimeOffset? ExpiresAt { get; set; }
 
     [Parameter]
-    public EventCallback<string> LongLivedAccessTokenChanged { get; set; }
+    public required Uri AppConfigurationEndpoint { get; set; }
 
     private async Task OnGenerateNewToken()
     {
+        const string AccessTokenKey = $"{nameof(FacebookOptions)}:AccessToken";
+        
         LongLivedAccessToken = await facebook.ExchangeForLongLivedToken(UserAccessToken);
-        try
-        {
-            ExpiresAt = (await facebook.GetTokenDetails(LongLivedAccessToken)).Data.ExpiresAt;
-        }
-        catch (HttpRequestException e)
-        {
-            logger.LogError(e, "{exceptionMessage} getting token expiry", e.Message);
-        }
-        await LongLivedAccessTokenChanged.InvokeAsync(LongLivedAccessToken);
+        ExpiresAt = (await facebook.GetTokenDetails(LongLivedAccessToken, UserAccessToken)).Data.ExpiresAt;
+
+        var client = new ConfigurationClient(AppConfigurationEndpoint, new DefaultAzureCredential());
+        await client.SetConfigurationSettingAsync(new ConfigurationSetting(AccessTokenKey, LongLivedAccessToken));
     }
 }

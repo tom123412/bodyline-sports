@@ -32,7 +32,11 @@
 <AuthorizeView Context="authContext" Policy="Admin">
   <Authorized>
     <a class="flex justify-end pr-2" href="/Account/SignOut">Hello, @authContext.User.Identity?.Name!</a>
-    <EditForm OnValidSubmit="OnSubmit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
+    
+    <AccessTokenAdmin UserAccessToken="@UserAccessToken" LongLivedAccessToken="@LongLivedAccessToken"
+      AppConfigurationEndpoint="@azureOptions.Value.AppConfigurationEndpoint" ExpiresAt="@Model!.TokenData?.ExpiresAt" @rendermode="InteractiveServer" />
+
+    <EditForm class="hidden" OnValidSubmit="OnSubmit" FormName="AdminForm" EditContext="_editContext" Enhance novalidate>
       <DataAnnotationsValidator />
       <ValidationSummary class="text-xs text-red-600" />
       <div class="p-4">
@@ -80,9 +84,6 @@
           </div>
         </div>
 
-        <AccessTokenAdmin UserAccessToken="@UserAccessToken" @bind-LongLivedAccessToken="@LongLivedAccessToken"
-          ExpiresAt="@Model.TokenData?.ExpiresAt" @rendermode="InteractiveServer" />
-
         <button type="submit"
           class="rounded-md bg-indigo-600 px-3 py-2 mt-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
       </div>
@@ -122,15 +123,7 @@
 
   protected async override Task OnInitializedAsync()
   {
-    try
-    {
-      Model!.TokenData = (await facebook.GetTokenDetails(facebookOptions.Value.AccessToken)).Data;
-    }
-    catch (HttpRequestException e)
-    {
-      logger.LogError(e, "{exceptionMessage} getting token details", e.Message);
-    }
-
+    Model!.TokenData = (await facebook.GetTokenDetails(LongLivedAccessToken!, UserAccessToken!)).Data;
     await base.OnInitializedAsync();
   }
 
@@ -161,11 +154,9 @@
   private async Task OnSubmit()
   {
     const string EmailKey = $"{nameof(ContactOptions)}:Email";
-    const string AccessTokenKey = $"{nameof(FacebookOptions)}:AccessToken";
 
     var client = new ConfigurationClient(azureOptions.Value.AppConfigurationEndpoint, new DefaultAzureCredential());
     await client.SetConfigurationSettingAsync(new ConfigurationSetting(EmailKey, Model!.Email));
-    await client.SetConfigurationSettingAsync(new ConfigurationSetting(AccessTokenKey, LongLivedAccessToken));
 
     //await RefreshConfiguration();
   }
