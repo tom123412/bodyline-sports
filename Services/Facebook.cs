@@ -9,7 +9,7 @@ namespace bodyline_sports.Services;
 public interface IFacebook
 {
     public Task<Group?> GetGroup(string groupdId);
-    public Task<Post[]> GetGroupPosts(Group group);
+    public Task<IEnumerable<Post>> GetGroupPosts(Group group);
     public Task<TokenDetails> GetTokenDetails(string accessToken, string userAccessToken);
     public Task<string> ExchangeForLongLivedToken(string accessToken);
 }
@@ -75,7 +75,7 @@ public class Facebook : IFacebook
         return group;
     }
 
-    async Task<Post[]> IFacebook.GetGroupPosts(Group group)
+    async Task<IEnumerable<Post>> IFacebook.GetGroupPosts(Group group)
     {
         var cacheKey = $"Posts-{group.Id}";
         var posts = _cache.Get<Post[]>(cacheKey)?.ToList() ?? [];
@@ -87,7 +87,7 @@ public class Facebook : IFacebook
 
         _cache.Set(cacheKey, newPosts.ToArray(), _cacheOptions);
 
-        return _cache.Get<Post[]>(cacheKey)!;
+        return _cache.Get<IEnumerable<Post>>(cacheKey)!;
     }
 
     async Task<TokenDetails> IFacebook.GetTokenDetails(string accessToken, string userAccessToken)

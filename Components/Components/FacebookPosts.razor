@@ -27,7 +27,7 @@
 }
 
 @code {
-    private Post[] Posts { get; set; } = [];
+    private IEnumerable<Post> Posts { get; set; } = Enumerable.Empty<Post>();
 
     protected override async Task OnInitializedAsync()
     {
